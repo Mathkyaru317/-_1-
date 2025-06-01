@@ -69,63 +69,29 @@ function draw() {
     // 依據音樂進度計算鼓點位置
     if (gameStarted && song.isPlaying()) {
       let timeToHit = beat.time - song.currentTime();
-      // 假設鼓點從畫面頂端到判定線需 1 秒
       let dropDuration = 1.0;
       let targetY = height * (1 - timeToHit / dropDuration);
       beat.y = constrain(targetY, -60, height + 60);
     } else {
-      beat.y += 2; // 未播放時預設下落
+      beat.y += 2;
     }
 
     fill(beat.color);
     let x = width / 2;
     ellipse(x, beat.y, 60, 60);
 
-    // 判定區域（判定線 ±30px）
-    if (
-      !beat.hit &&
-      abs(beat.y - assistLineY) < 30 &&
-      gameStarted &&
-      song.isPlaying()
-    ) {
-      // 左手
-      if (beat.leftChances > 0) {
-        if (beat.type === 'fist' && detectFist(predictions, 'left')) {
-          beat.leftChances--;
-          if (beat.leftChances === 0 && beat.rightChances === 0) {
-            beat.hit = true;
-            beat.color = color(0, 255, 0);
-          }
-        }
-        if (beat.type === 'palm' && detectPalm(predictions, 'left')) {
-          beat.leftChances--;
-          if (beat.leftChances === 0 && beat.rightChances === 0) {
-            beat.hit = true;
-            beat.color = color(0, 255, 0);
-          }
-        }
-      }
-      // 右手
-      if (beat.rightChances > 0) {
-        if (beat.type === 'fist' && detectFist(predictions, 'right')) {
-          beat.rightChances--;
-          if (beat.leftChances === 0 && beat.rightChances === 0) {
-            beat.hit = true;
-            beat.color = color(0, 255, 0);
-          }
-        }
-        if (beat.type === 'palm' && detectPalm(predictions, 'right')) {
-          beat.rightChances--;
-          if (beat.leftChances === 0 && beat.rightChances === 0) {
-            beat.hit = true;
-            beat.color = color(0, 255, 0);
-          }
-        }
-      }
-    }
+    // 暫時取消手勢判定，僅顯示鼓點
+    // if (
+    //   !beat.hit &&
+    //   abs(beat.y - assistLineY) < 30 &&
+    //   gameStarted &&
+    //   song.isPlaying()
+    // ) {
+    //   // ...手勢判定區塊...
+    // }
 
     // 超出畫面或已擊中就移除
-    if (beat.y > height + 60 || (beat.hit && beat.y > height / 2)) {
+    if (beat.y > height + 60 /*|| (beat.hit && beat.y > height / 2)*/) {
       beats.splice(i, 1);
     }
   }
@@ -163,6 +129,10 @@ function drawHands() {
       ellipse(x, y, 10, 10);
     }
   }
+  // 新增：顯示偵測到幾隻手
+  fill(255);
+  textSize(16);
+  text("偵測到手數：" + predictions.length, 20, 30);
 }
 
 // 偵測左/右手握拳
